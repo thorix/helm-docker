@@ -1,13 +1,17 @@
-FROM alpine:3.6
+FROM alpine:latest
+ARG HELM_VERSION
 
-ENV VERSION v2.9.0-rc3
+MAINTAINER Ryan W <ryanw@thorix.net>
 
-MAINTAINER Trevor Hartman <trevorhartman@gmail.com>
+RUN echo "Helm Version: ${HELM_VERSION}"
 
 WORKDIR /
 
+# Helm plugins require git
+# helm-diff requires bash, curl
 # Enable SSL
-RUN apk --update add ca-certificates wget python curl tar
+RUN apk --update add ca-certificates wget python curl tar bash git \
+ && rm -rf /var/cache/apk/*
 
 # Install gcloud and kubectl
 # kubectl will be available at /google-cloud-sdk/bin/kubectl
@@ -22,21 +26,15 @@ RUN google-cloud-sdk/install.sh --usage-reporting=true --path-update=true --bash
 RUN google-cloud-sdk/bin/gcloud config set --installation component_manager/disable_update_check true
 
 # Install Helm
-ENV FILENAME helm-${VERSION}-linux-amd64.tar.gz
+ENV FILENAME helm-${HELM_VERSION}-linux-amd64.tar.gz
 ENV HELM_URL https://storage.googleapis.com/kubernetes-helm/${FILENAME}
 
 RUN curl -o /tmp/$FILENAME ${HELM_URL} \
   && tar -zxvf /tmp/${FILENAME} -C /tmp \
-  && mv /tmp/linux-amd64/helm /bin/helm \
-  && rm -rf /tmp
-
-# Helm plugins require git
-# helm-diff requires bash, curl
-RUN apk --update add git bash
+  && mv /tmp/linux-amd64/helm /bin/helm
 
 # Install Helm plugins
-RUN helm init --client-only
 # Plugin is downloaded to /tmp, which must exist
-RUN mkdir /tmp
-RUN helm plugin install https://github.com/viglesiasce/helm-gcs.git
-RUN helm plugin install https://github.com/databus23/helm-diff
+RUN helm init --client-only \
+ && helm plugin install https://github.com/databus23/helm-diff \
+ && rm -rf /tmp
