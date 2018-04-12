@@ -2,6 +2,6 @@
 
 # https://docs.docker.com/docker-cloud/builds/advanced/
 
-sed -i "s|^ENV HELM_VERSION.*$|ENV HELM_VERSION=\"${SOURCE_BRANCH}\"|" Dockerfile
+sed -i "s|^ARG HELM_VERSION.*$|ARG HELM_VERSION=\"${SOURCE_BRANCH}\"|" Dockerfile
 
 exit $?
