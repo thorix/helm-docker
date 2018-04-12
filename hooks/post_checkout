@@ -1,7 +1,0 @@
-#!/bin/bash
-
-# https://docs.docker.com/docker-cloud/builds/advanced/
-
-sed -i "s|^ARG HELM_VERSION.*$|ARG HELM_VERSION=\"${SOURCE_BRANCH}\"|" Dockerfile
-
-exit $?
