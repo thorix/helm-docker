@@ -17,7 +17,7 @@ The image also includes the `helm diff` Helm Plugin.
 ## Docker
 
 ```bash
-docker build -t devth/helm .
+VERSION=2.9.0; docker build --build-arg HELM_VERSION=v$VERSION . -t $VERSION
 ```
 
 ## Release procedure
@@ -25,6 +25,15 @@ docker build -t devth/helm .
 1. Bump `VERSION` in the [Dockerfile](Dockerfile)
 1. Commit and create tag matching the version:
 
-   ```bash
-   docker build --build-arg HELM_VERSION=v2.8.2 . -t 2.8.2
-   ```
+```bash
+export $VERSION
+git tag -a $VERSION
+git push origin --tags
+```
+
+2. Delete a tag
+```bash
+export $VERSION
+git tag -d $VERSION
+git push origin :refs/tags/$VERSION
+```
